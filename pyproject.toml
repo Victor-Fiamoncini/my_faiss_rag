@@ -1,0 +1,94 @@
+[project]
+name = "my-faiss-rag"
+version = "0.1.0"
+description = "HR internal-policy assistant built with Streamlit, LangChain (LCEL), FAISS and OpenAI."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "faiss-cpu",
+  "langchain-community",
+  "langchain-core",
+  "langchain-openai",
+  "langchain-text-splitters",
+  "pypdf",
+  "python-dotenv",
+  "streamlit",
+]
+
+[dependency-groups]
+dev = [
+  "mypy",
+  "pre-commit",
+  "pytest",
+  "pytest-cov",
+  "ruff",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/my_faiss_rag"]
+
+# ---------------------------------------------------------------------------
+# Ruff (formatter + linter)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.format]
+indent-style = "tab"
+quote-style = "double"
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "N",   # pep8-naming
+  "UP",  # pyupgrade
+  "B",   # flake8-bugbear
+  "SIM", # flake8-simplify
+  "PT",  # flake8-pytest-style
+  "RUF", # ruff-specific rules
+]
+ignore = [
+  "W191", # tabs are the project's indentation style
+  "E501", # line length is handled by the formatter
+]
+
+# ---------------------------------------------------------------------------
+# mypy
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+files = ["src", "tests"]
+
+# ---------------------------------------------------------------------------
+# pytest + coverage
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+  "--cov",
+  "--cov-report=term-missing",
+  "--cov-fail-under=90",
+]
+filterwarnings = [
+  "ignore:.*langchain-community.*is being sunset:DeprecationWarning",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/my_faiss_rag"]

@@ -1,0 +1,29 @@
+# Environment files
+.env.local
+
+# Venv
+.venv
+
+# Editor/OS
+.idea
+.vscode
+.DS_Store
+
+# Knowledge base documents (keep the folder, not its contents)
+/data/*
+!/data/.gitkeep
+
+# JetBrains IDE (PyCharm) settings
+/.idea/
+
+# Python / tooling caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
