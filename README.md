@@ -86,6 +86,12 @@ The app opens at http://localhost:8501. Stop it with `Ctrl+C`.
 Tests run offline: OpenAI embeddings and the chat model are replaced with LangChain fakes, and the
 Streamlit UI is tested with `AppTest`. The run fails if coverage drops below 90%.
 
+The suite can't reach OpenAI or any other service, even by mistake:
+
+- [pytest-socket](https://github.com/miketheman/pytest-socket) blocks all network sockets.
+- An autouse fixture swaps in a dummy API key, points `OPENAI_BASE_URL` at an unresolvable host,
+  turns off LangSmith tracing, and keeps your real `.env.local` from being loaded.
+
 All tool settings live in `pyproject.toml`.
 
 ## Project structure

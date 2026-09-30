@@ -4,6 +4,8 @@ import pytest
 from langchain_core.embeddings import DeterministicFakeEmbedding
 from langchain_core.language_models import FakeListChatModel
 
+from my_faiss_rag import config
+
 SAMPLE_TEXT = "Os colaboradores tem direito a 30 dias de ferias por ano."
 
 
@@ -36,10 +38,40 @@ def build_pdf(text: str) -> bytes:
 	return pdf
 
 
+# Anything that could point a client at a real account or a tracing backend.
+UNSAFE_ENV_VARS = (
+	"OPENAI_ORG_ID",
+	"OPENAI_ORGANIZATION",
+	"OPENAI_PROJECT_ID",
+	"LANGSMITH_API_KEY",
+	"LANGSMITH_ENDPOINT",
+	"LANGCHAIN_API_KEY",
+	"LANGCHAIN_ENDPOINT",
+)
+OFFLINE_BASE_URL = "http://openai.invalid/v1"  # .invalid never resolves (RFC 2606)
+
+
 @pytest.fixture(autouse=True)
-def openai_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
-	"""Keep tests offline: a dummy key so OpenAI clients can be built but never used."""
+def offline_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+	"""Keep tests away from OpenAI, LangSmith and the developer's `.env.local`.
+
+	Network access is blocked by pytest-socket (see `addopts`); this is the second layer.
+	"""
+	for name in UNSAFE_ENV_VARS:
+		monkeypatch.delenv(name, raising=False)
 	monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+	monkeypatch.setenv("OPENAI_BASE_URL", OFFLINE_BASE_URL)
+	monkeypatch.setenv("LANGSMITH_TRACING", "false")
+	monkeypatch.setenv("LANGCHAIN_TRACING_V2", "false")
+
+	# `app.py` calls `load_env()`: point its default at a missing file instead of the real one.
+	real_load_env = config.load_env
+	missing_env_file = tmp_path / ".env.local"
+
+	def isolated_load_env(path: Path = missing_env_file) -> bool:
+		return real_load_env(path)
+
+	monkeypatch.setattr(config, "load_env", isolated_load_env)
 
 
 @pytest.fixture

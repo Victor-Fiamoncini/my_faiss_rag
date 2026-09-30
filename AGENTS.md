@@ -72,6 +72,12 @@ Add dependencies with `uv add <pkg>` (or `uv add --dev <pkg>`), never by editing
   (`DeterministicFakeEmbedding`), `fake_llm` (`FakeListChatModel`), `sample_pdf` (a tiny PDF
   generated on the fly, because `data/` is git-ignored).
 - UI tests use `streamlit.testing.v1.AppTest` and monkeypatch `chain.build_chain`.
+- The suite is offline by construction (checked by `tests/test_offline.py`):
+  - pytest-socket (`--disable-socket` in `addopts`) makes any TCP/UDP socket raise `SocketBlockedError`.
+  - The autouse `offline_env` fixture sets a dummy `OPENAI_API_KEY`, points `OPENAI_BASE_URL` at
+    `http://openai.invalid/v1`, disables LangSmith tracing, clears org/project/LangSmith keys, and
+    makes `config.load_env()` default to a missing file, so the real `.env.local` is never loaded.
+  - Never add `@pytest.mark.enable_socket` or bypass these guards to hit a real API.
 - Keep coverage at or above 90%.
 
 ## Conventions

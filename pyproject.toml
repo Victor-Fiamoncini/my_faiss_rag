@@ -23,6 +23,7 @@ dev = [
   "pre-commit",
   "pytest",
   "pytest-cov",
+  "pytest-socket",
   "ruff",
 ]
 
@@ -81,6 +82,8 @@ addopts = [
   "-ra",
   "--strict-markers",
   "--strict-config",
+  "--disable-socket",     # pytest-socket: no network in tests (fails instead of calling OpenAI)
+  "--allow-unix-socket",  # asyncio/Streamlit use local socketpairs
   "--cov",
   "--cov-report=term-missing",
   "--cov-fail-under=90",
